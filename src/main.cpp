@@ -20,6 +20,7 @@ int main() {
     }
 
     int currentCustomerNumber = 1;
+    int currentCustomersInRestaurant = 0;
     bool gameRunning = true;
 
     while (gameRunning) {
@@ -80,8 +81,8 @@ int main() {
         std::cin >> choice;
 
         switch (choice) {
-        case 1: {  // Assign Customer to Table
-            if (currentCustomerNumber > maxCustomers) {
+        case 1: { // Assign Customer to Table
+            if (currentCustomersInRestaurant >= maxCustomers) {
                 std::cout << "Maximum customer capacity reached! Cannot add more customers.\n";
             } else {
                 std::cout << "Enter table number to seat the customer (1 to " << numTables << "): ";
@@ -97,6 +98,7 @@ int main() {
                 } else {
                     Customer newCustomer(currentCustomerNumber++, 5); // Default emotion is 5
                     tables[tableChoice - 1].seatCustomer(newCustomer);
+                    currentCustomersInRestaurant++; // Increment the count of seated customers
                     std::cout << "Customer " << newCustomer.getNumber() << " seated at Table " << tableChoice << ".\n";
                 }
             }
@@ -151,7 +153,7 @@ int main() {
             waitForEnter();
             break;
         }
-        case 5: {  // Unseat Customer
+        case 5: { // Unseat Customer
             std::cout << "Enter table number to unseat customer (1 to " << numTables << "): ";
             int tableChoice;
             std::cin >> tableChoice;
@@ -164,6 +166,7 @@ int main() {
                 std::cout << "Customer has not been served yet at Table " << tableChoice << ".\n";
             } else {
                 tables[tableChoice - 1].unseatCustomer();
+                currentCustomersInRestaurant--; // Decrement the count of seated customers
                 std::cout << "Customer unseated from Table " << tableChoice << ".\n";
             }
             waitForEnter();
