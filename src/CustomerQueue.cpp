@@ -1,16 +1,29 @@
 #include "CustomerQueue.h"
-#include "Queue.h"
 
-Queue queueManager;
-
-void CustomerQueue::enqueueCustomer(Customer* customer) {
-    queueManager.enqueue(customer);
+bool CustomerQueue::enqueueCustomer(const Customer& customer) {
+    if (customers.size() < maxCapacity) {
+        customers.push(customer);
+        return true;
+    }
+    return false; // Queue is full
 }
 
-Customer* CustomerQueue::dequeueCustomer() {
-    return queueManager.dequeue();
+bool CustomerQueue::dequeueCustomer() {
+    if (!customers.empty()) {
+        customers.pop();
+        return true;
+    }
+    return false; // Queue is empty
 }
 
-bool CustomerQueue::isQueueEmpty() const {
-    return queueManager.isEmpty();
+Customer CustomerQueue::frontCustomer() const {
+    return customers.front();
+}
+
+int CustomerQueue::getSize() const {
+    return customers.size();
+}
+
+bool CustomerQueue::isFull() const {
+    return customers.size() >= maxCapacity;
 }

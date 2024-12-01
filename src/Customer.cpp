@@ -1,21 +1,21 @@
 #include "Customer.h"
 
-Customer::Customer() : customerCount(0), emotion(5) {}
+Customer::Customer() : number(0), emotion(5) {}
 
-Customer::Customer(int count, int emotion) : customerCount(count), emotion(emotion) {}
+Customer::Customer(int number, int emotion) : number(number), emotion(emotion) {}
 
-void Customer::setCustomerCount(int count) {
-    customerCount = count;
+int Customer::getNumber() const {
+    return number;
 }
 
-void Customer::setEmotion(int emotion) {
-    this->emotion = emotion;
-}
-
-int Customer::getCustomerCount() const {
-    return customerCount;
+void Customer::setNumber(int number) {
+    this->number = number;
 }
 
 int Customer::getEmotion() const {
     return emotion;
+}
+
+void Customer::setEmotion(int emotion) {
+    this->emotion = emotion;
 }

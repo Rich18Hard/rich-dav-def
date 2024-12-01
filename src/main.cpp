@@ -1,105 +1,197 @@
 #include <iostream>
+#include <vector>
 #include "Customer.h"
-#include "CustomerQueue.h"
 #include "Table.h"
-#include "Kitchen.h"
-#include "Dishwasher.h"
-#include "Player.h"
-#include "Queue.h"
-#include "Order.h"
+
+// Function to prompt and wait for ENTER
+void waitForEnter() {
+    std::cout << "Press ENTER to continue.";
+    std::cin.ignore(); // Clear the input buffer
+    std::cin.get();    // Wait for the user to press ENTER
+}
 
 int main() {
-    CustomerQueue customerQueue;
-    Kitchen kitchen;
-    Dishwasher dishwasher;
-    Player player;
+    const int maxCustomers = 4;
+    const int numTables = 4;
 
-    int option;
+    std::vector<Table> tables;
+    for (int i = 1; i <= numTables; ++i) {
+        tables.push_back(Table(i));
+    }
+
+    int currentCustomerNumber = 1;
     bool gameRunning = true;
 
     while (gameRunning) {
         std::cout << "\nRestaurant Management System\n";
-        std::cout << "1. Display Order Status\n";
-        std::cout << "2. Assign Customer to Table\n";
-        std::cout << "3. Take Order\n";
-        std::cout << "4. Serve Customer\n";
-        std::cout << "5. Simulate Order Processing\n";
-        std::cout << "6. Unseat Customer\n";
-        std::cout << "7. Clean Table\n";
-        std::cout << "8. Exit\n";
-        std::cout << "Choose an option: ";
-        std::cin >> option;
 
-        switch (option) {
-            case 1: {
-                std::cout << "Displaying Order Status...\n";
-                // Implement logic to display orders and their statuses
-                break;
-            }
+        // Display table statuses
+        std::cout << "Status:\n";
+        for (const auto& table : tables) {
+            std::cout << "Table " << table.getTableNumber() << ": ";
 
-            case 2: {
-                // Generate customer and add to queue
-                Customer* customer = new Customer(1, 5);  // Example: 1 customer with emotion 5
-                customerQueue.enqueueCustomer(customer);
-                std::cout << "Customer added to queue.\n";
-                break;
-            }
-
-            case 3: {
-                if (!customerQueue.isQueueEmpty()) {
-                    Customer* customer = customerQueue.dequeueCustomer();
-                    Table* table = new Table();
-                    table->setCustomerCount(customer->getCustomerCount());
-                    Order* order = new Order(1);  // Example order
-                    table->setOrder(order);
-                    kitchen.addOrder(1, order);  // Add order to kitchen
-                    std::cout << "Order taken and sent to kitchen.\n";
+            if (table.hasDirtyPlatesStatus()) {
+                std::cout << "Table has dirty plates.\n";
+            } else if (!table.getOccupiedStatus()) {
+                std::cout << "Empty and available.\n";
+            } else {
+                if (!table.hasOrderTaken()) {
+                    std::cout << "Customer seated, order not taken.\n";
+                } else if (!table.isOrderProcessed()) {
+                    std::cout << "Order taken, processing.\n";
+                } else if (!table.isOrderServed()) {
+                    std::cout << "Order processed, waiting to be served.\n";
                 } else {
-                    std::cout << "No customers in the queue.\n";
+                    std::cout << "Order served, ready to unseat.\n";
                 }
-                break;
             }
+        }
 
-            case 4: {
-                std::cout << "Serving customer...\n";
-                // Implement logic to serve customer, mark order as served
-                break;
+        // Display orders available to be served
+        std::vector<int> readyTables;
+        for (const auto& table : tables) {
+            if (table.isOrderProcessed() && !table.isOrderServed()) {
+                readyTables.push_back(table.getTableNumber());
             }
+        }
 
-            case 5: {
-                std::cout << "Simulating Order Processing...\n";
-                // Process order in kitchen, serve it
-                if (kitchen.getOrder(1) != nullptr) {
-                    kitchen.getOrder(1)->serveOrder();
-                    std::cout << "Order processed.\n";
+        if (!readyTables.empty()) {
+            std::cout << "\nOrder(s) available to be served to tables: ";
+            for (size_t i = 0; i < readyTables.size(); ++i) {
+                std::cout << readyTables[i];
+                if (i < readyTables.size() - 1) {
+                    std::cout << ", ";
                 }
-                break;
             }
+            std::cout << ".\n";
+        }
 
-            case 6: {
-                std::cout << "Unseating customer...\n";
-                // Unseat customer logic
-                break;
-            }
+        std::cout << "\nPick an option:\n";
+        std::cout << "1. Assign Customer to Table\n";
+        std::cout << "2. Take Order\n";
+        std::cout << "3. Simulate Order Processing\n";
+        std::cout << "4. Serve Customer\n";
+        std::cout << "5. Unseat Customer\n";
+        std::cout << "6. Clean Table\n";
+        std::cout << "7. Exit\n";
+        std::cout << "Choose an option: ";
 
-            case 7: {
-                std::cout << "Cleaning table...\n";
-                // Clean table logic
-                dishwasher.toggle();  // Toggle dishwasher on
-                dishwasher.generateMoney();  // Generate money from cleaning
-                break;
-            }
+        int choice;
+        std::cin >> choice;
 
-            case 8: {
-                gameRunning = false;
-                std::cout << "Exiting...\n";
-                break;
-            }
+        switch (choice) {
+        case 1: {  // Assign Customer to Table
+            if (currentCustomerNumber > maxCustomers) {
+                std::cout << "Maximum customer capacity reached! Cannot add more customers.\n";
+            } else {
+                std::cout << "Enter table number to seat the customer (1 to " << numTables << "): ";
+                int tableChoice;
+                std::cin >> tableChoice;
 
-            default: {
-                std::cout << "Invalid option. Try again.\n";
-                break;
+                if (tableChoice < 1 || tableChoice > numTables) {
+                    std::cout << "Invalid table number.\n";
+                } else if (tables[tableChoice - 1].getOccupiedStatus()) {
+                    std::cout << "Table " << tableChoice << " is already occupied.\n";
+                } else if (tables[tableChoice - 1].hasDirtyPlatesStatus()) {
+                    std::cout << "Table " << tableChoice << " has dirty plates. Clean it first.\n";
+                } else {
+                    Customer newCustomer(currentCustomerNumber++, 5); // Default emotion is 5
+                    tables[tableChoice - 1].seatCustomer(newCustomer);
+                    std::cout << "Customer " << newCustomer.getNumber() << " seated at Table " << tableChoice << ".\n";
+                }
             }
+            waitForEnter();
+            break;
+        }
+        case 2: {  // Take Order
+            std::cout << "Enter table number to take order from (1 to " << numTables << "): ";
+            int tableChoice;
+            std::cin >> tableChoice;
+
+            if (tableChoice < 1 || tableChoice > numTables) {
+                std::cout << "Invalid table number.\n";
+            } else if (!tables[tableChoice - 1].getOccupiedStatus()) {
+                std::cout << "Table " << tableChoice << " is empty.\n";
+            } else if (tables[tableChoice - 1].hasOrderTaken()) {
+                std::cout << "Order already taken for Table " << tableChoice << ".\n";
+            } else {
+                tables[tableChoice - 1].takeOrder();
+                std::cout << "Order taken for Table " << tableChoice << ".\n";
+            }
+            waitForEnter();
+            break;
+        }
+        case 3: {  // Simulate Order Processing
+            for (auto& table : tables) {
+                if (table.hasOrderTaken() && !table.isOrderProcessed()) {
+                    table.processOrder();
+                }
+            }
+            std::cout << "Orders have been processed.\n";
+            waitForEnter();
+            break;
+        }
+        case 4: {  // Serve Customer
+            std::cout << "Enter table number to serve (1 to " << numTables << "): ";
+            int tableChoice;
+            std::cin >> tableChoice;
+
+            if (tableChoice < 1 || tableChoice > numTables) {
+                std::cout << "Invalid table number.\n";
+            } else if (!tables[tableChoice - 1].getOccupiedStatus()) {
+                std::cout << "Table " << tableChoice << " is empty.\n";
+            } else if (!tables[tableChoice - 1].hasOrderTaken()) {
+                std::cout << "No order taken yet for Table " << tableChoice << ".\n";
+            } else if (tables[tableChoice - 1].isOrderServed()) {
+                std::cout << "Order already served for Table " << tableChoice << ".\n";
+            } else {
+                tables[tableChoice - 1].serveOrder();
+                std::cout << "Order served to Table " << tableChoice << ".\n";
+            }
+            waitForEnter();
+            break;
+        }
+        case 5: {  // Unseat Customer
+            std::cout << "Enter table number to unseat customer (1 to " << numTables << "): ";
+            int tableChoice;
+            std::cin >> tableChoice;
+
+            if (tableChoice < 1 || tableChoice > numTables) {
+                std::cout << "Invalid table number.\n";
+            } else if (!tables[tableChoice - 1].getOccupiedStatus()) {
+                std::cout << "No customer at Table " << tableChoice << ".\n";
+            } else if (!tables[tableChoice - 1].isOrderServed()) {
+                std::cout << "Customer has not been served yet at Table " << tableChoice << ".\n";
+            } else {
+                tables[tableChoice - 1].unseatCustomer();
+                std::cout << "Customer unseated from Table " << tableChoice << ".\n";
+            }
+            waitForEnter();
+            break;
+        }
+        case 6: {  // Clean Table
+            std::cout << "Enter table number to clean (1 to " << numTables << "): ";
+            int tableChoice;
+            std::cin >> tableChoice;
+
+            if (tableChoice < 1 || tableChoice > numTables) {
+                std::cout << "Invalid table number.\n";
+            } else if (!tables[tableChoice - 1].hasDirtyPlatesStatus()) {
+                std::cout << "Table " << tableChoice << " has no dirty plates to clean.\n";
+            } else {
+                tables[tableChoice - 1].cleanTable();
+                std::cout << "Table " << tableChoice << " cleaned.\n";
+            }
+            waitForEnter();
+            break;
+        }
+        case 7: {  // Exit
+            gameRunning = false;
+            break;
+        }
+        default:
+            std::cout << "Invalid option. Please try again.\n";
+            waitForEnter();
         }
     }
 

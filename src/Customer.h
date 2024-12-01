@@ -3,17 +3,16 @@
 
 class Customer {
 private:
-    int customerCount;
+    int number;
     int emotion;
 
 public:
     Customer();
-    Customer(int count, int emotion);
-
-    void setCustomerCount(int count);
-    void setEmotion(int emotion);
-    int getCustomerCount() const;
+    Customer(int number, int emotion);
+    int getNumber() const;
+    void setNumber(int number);
     int getEmotion() const;
+    void setEmotion(int emotion);
 };
 
-#endif // CUSTOMER_H
+#endif

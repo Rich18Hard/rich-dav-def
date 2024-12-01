@@ -1,25 +1,41 @@
 #ifndef TABLE_H
 #define TABLE_H
 
-#include "Order.h"
+#include "Customer.h"
 
 class Table {
 private:
-    int customerCount;
-    bool servingStatus;
-    Order* currentOrder;
+    int tableNumber;
+    bool isOccupied;
+    Customer seatedCustomer;
+    bool orderTaken;
+    bool orderProcessed;
+    bool hasDirtyPlates;
+    bool orderServed;  // New flag to track if order is served
 
 public:
     Table();
-    
-    void setCustomerCount(int count);
-    void setServingStatus(bool status);
+    Table(int tableNumber);
 
-    int getCustomerCount() const;
-    bool getServingStatus() const;
+    // Seating/Unseating
+    bool seatCustomer(const Customer& customer);
+    bool unseatCustomer();
 
-    void setOrder(Order* order);
-    Order* getCurrentOrder() const;
+    // Getters
+    bool getOccupiedStatus() const;
+    int getTableNumber() const;
+    Customer getSeatedCustomer() const;
+
+    // Order Handling
+    bool takeOrder();
+    bool processOrder();
+    bool serveOrder();
+    bool hasOrderTaken() const;
+    bool isOrderProcessed() const;
+    bool isOrderServed() const;
+
+    // Cleaning
+    bool hasDirtyPlatesStatus() const;
+    bool cleanTable();
 };
-
-#endif // TABLE_H
+#endif
