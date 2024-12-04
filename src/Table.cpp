@@ -1,11 +1,11 @@
 #include "Table.h"
 
-Table::Table() : tableNumber(0), isOccupied(false), orderTaken(false), orderProcessed(false), hasDirtyPlates(false), orderServed(false) {}
+Table::Table() : tableNumber(0), isOccupied(false), seatedCustomer(nullptr), orderTaken(false), orderProcessed(false), hasDirtyPlates(false), orderServed(false) {}
 
 Table::Table(int tableNumber)
-    : tableNumber(tableNumber), isOccupied(false), orderTaken(false), orderProcessed(false), hasDirtyPlates(false), orderServed(false) {}
+    : tableNumber(tableNumber), isOccupied(false), seatedCustomer(nullptr), orderTaken(false), orderProcessed(false), hasDirtyPlates(false), orderServed(false) {}
 
-bool Table::seatCustomer(const Customer& customer) {
+bool Table::seatCustomer(Customer* customer) {
     if (!isOccupied) {
         seatedCustomer = customer;
         isOccupied = true;
@@ -15,12 +15,13 @@ bool Table::seatCustomer(const Customer& customer) {
 }
 
 bool Table::unseatCustomer() {
-    if (isOccupied && orderServed) {  // Unseat only after order has been served
-        hasDirtyPlates = true;  // Customer leaves dirty plates
+    if (isOccupied && orderServed) {
+        hasDirtyPlates = true;
         isOccupied = false;
         orderTaken = false;
         orderProcessed = false;
         orderServed = false;
+        seatedCustomer = nullptr;  // Reset the pointer
         return true;
     }
     return false;
@@ -34,7 +35,7 @@ int Table::getTableNumber() const {
     return tableNumber;
 }
 
-Customer Table::getSeatedCustomer() const {
+Customer* Table::getSeatedCustomer() const {
     return seatedCustomer;
 }
 
@@ -56,7 +57,7 @@ bool Table::processOrder() {
 
 bool Table::serveOrder() {
     if (orderTaken && orderProcessed && !orderServed) {
-        orderServed = true;  // Mark order as served
+        orderServed = true;
         return true;
     }
     return false;

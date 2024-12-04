@@ -7,24 +7,24 @@ class Table {
 private:
     int tableNumber;
     bool isOccupied;
-    Customer seatedCustomer;
+    Customer* seatedCustomer;  // Pointer to Customer (base class)
     bool orderTaken;
     bool orderProcessed;
     bool hasDirtyPlates;
-    bool orderServed;  // New flag to track if order is served
+    bool orderServed;
 
 public:
     Table();
     Table(int tableNumber);
 
     // Seating/Unseating
-    bool seatCustomer(const Customer& customer);
+    bool seatCustomer(Customer* customer);
     bool unseatCustomer();
 
     // Getters
     bool getOccupiedStatus() const;
     int getTableNumber() const;
-    Customer getSeatedCustomer() const;
+    Customer* getSeatedCustomer() const;
 
     // Order Handling
     bool takeOrder();
@@ -38,4 +38,5 @@ public:
     bool hasDirtyPlatesStatus() const;
     bool cleanTable();
 };
+
 #endif

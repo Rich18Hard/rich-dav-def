@@ -1,5 +1,7 @@
 #include <iostream>
 #include <vector>
+#include <cstdlib>
+#include <ctime>
 #include "Customer.h"
 #include "Table.h"
 
@@ -8,6 +10,20 @@ void waitForEnter() {
     std::cout << "Press ENTER to continue.";
     std::cin.ignore(); // Clear the input buffer
     std::cin.get();    // Wait for the user to press ENTER
+}
+
+// Function to create a random customer
+Customer* createRandomCustomer(int number) {
+    int emotion = rand() % 10 + 1;  // Random emotion between 1 and 10
+    int type = rand() % 3;
+
+    if (type == 0) {
+        return new ImpatientCustomer(number, emotion);
+    } else if (type == 1) {
+        return new PatientCustomer(number, emotion);
+    } else {
+        return new LoyalCustomer(number, emotion);
+    }
 }
 
 int main() {
@@ -23,10 +39,12 @@ int main() {
     int currentCustomersInRestaurant = 0;
     bool gameRunning = true;
 
+    // Initialize random seed
+    srand(static_cast<unsigned int>(time(0)));
+
     while (gameRunning) {
         std::cout << "\nRestaurant Management System\n";
 
-        // Display table statuses
         std::cout << "Status:\n";
         for (const auto& table : tables) {
             std::cout << "Table " << table.getTableNumber() << ": ";
@@ -36,6 +54,8 @@ int main() {
             } else if (!table.getOccupiedStatus()) {
                 std::cout << "Empty and available.\n";
             } else {
+                Customer* seatedCustomer = table.getSeatedCustomer();
+                std::cout  << "[" << seatedCustomer->getPersonality() << "] ";
                 if (!table.hasOrderTaken()) {
                     std::cout << "Customer seated, order not taken.\n";
                 } else if (!table.isOrderProcessed()) {
@@ -96,10 +116,10 @@ int main() {
                 } else if (tables[tableChoice - 1].hasDirtyPlatesStatus()) {
                     std::cout << "Table " << tableChoice << " has dirty plates. Clean it first.\n";
                 } else {
-                    Customer newCustomer(currentCustomerNumber++, 5); // Default emotion is 5
+                    Customer* newCustomer = createRandomCustomer(currentCustomerNumber++);
                     tables[tableChoice - 1].seatCustomer(newCustomer);
-                    currentCustomersInRestaurant++; // Increment the count of seated customers
-                    std::cout << "Customer " << newCustomer.getNumber() << " seated at Table " << tableChoice << ".\n";
+                    currentCustomersInRestaurant++;
+                    std::cout << "Customer " << newCustomer->getNumber() << " [" << newCustomer->getPersonality() << "] seated at Table " << tableChoice << ".\n";
                 }
             }
             waitForEnter();
